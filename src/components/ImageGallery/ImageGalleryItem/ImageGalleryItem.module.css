@@ -1,0 +1,10 @@
+.img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+.img:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 5px 10px 5px rgba(2, 162, 255, 0.47);
+}
