@@ -11,8 +11,20 @@ ul {
   margin-right: auto;
 }
 
+p {
+  font-size: 30px;
+  color: grey;
+  text-align: center;
+}
+
 .loader {
   display: block;
   margin-left: auto;
   margin-right: auto;
+}
+.loaderdiv {
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

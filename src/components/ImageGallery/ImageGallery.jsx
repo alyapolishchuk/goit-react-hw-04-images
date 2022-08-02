@@ -63,13 +63,17 @@ class ImageGallery extends Component {
     const { imageList, page, totalHits, status, error } = this.state;
 
     if (status === STATUS.loading) {
-      return <Loader className={css.loader} />;
+      return (
+        <div className={css.loaderdiv}>
+          <Loader className={css.loader} />
+        </div>
+      );
     }
     if (status === STATUS.error) {
       return <p>{error}</p>;
     }
     if (!imageList.length) {
-      return <p>{`Please, enter the search request`}</p>;
+      return <p className={css.p}>{`Please, enter the search request`}</p>;
     }
     if (status === STATUS.success) {
       return (

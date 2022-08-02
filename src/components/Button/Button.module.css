@@ -14,6 +14,8 @@
   display: block;
   margin-left: auto;
   margin-right: auto;
+  margin-top: 4px;
+  margin-bottom: 4px;
 }
 .button:hover {
   border: 2px solid rgba(86, 84, 84, 0.848);
