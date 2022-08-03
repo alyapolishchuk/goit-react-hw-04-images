@@ -1,100 +1,82 @@
 import { Button } from 'components/Button/Button';
 import { Loader } from 'components/Loader/Loader';
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import css from './ImageGallery.module.css';
 import { ImageGalleryItem } from './ImageGalleryItem/ImageGalleryItem';
 import { createRequest } from '../../API/pixabay';
 import PropTypes from 'prop-types';
+import { toast } from 'react-toastify';
 
-const STATUS = {
-  idle: 'idle',
-  loading: 'loading',
-  error: 'error',
-  success: 'success',
-};
-class ImageGallery extends Component {
-  static propTypes = {
-    handlerOpenModal: PropTypes.func.isRequired,
-    query: PropTypes.string.isRequired,
-  };
+export const ImageGallery = ({ search, handlerOpenModal }) => {
+  const [imageList, setImageList] = useState([]);
+  const [totalHits, setTotalHits] = useState(null);
+  const [page, setPage] = useState(1);
+  const [loader, setLoader] = useState(false);
 
-  state = {
-    imageList: [],
-    page: 1,
-    status: STATUS.idle,
-    totalHits: null,
-  };
-  componentDidUpdate(prevProps, prevState) {
-    if (prevProps.query !== this.props.query) {
-      this.setState({ status: STATUS.loading });
-      createRequest(this.props.query)
-        .then(res => {
-          const { data } = res;
-
-          this.setState(prevState => ({
-            imageList: [...data.hits],
-            page: 2,
-            totalHits: data.totalHits,
-            status: STATUS.success,
-          }));
-        })
-        .catch(error => {
-          this.setState({ status: STATUS.error, error });
-        });
+  useEffect(() => {
+    if (search === '') {
+      return;
     }
-  }
-  //обробник кнопки "завантажити ще"
-  loadMore = () => {
-    createRequest(this.props.query, this.state.page)
-      .then(res => {
-        const { hits } = res.data;
-        this.setState(prevState => ({
-          imageList: [...prevState.imageList, ...hits],
-          page: prevState.page + 1,
-        }));
+    setLoader(true);
+    createRequest(search)
+      .then(response => {
+        const { data } = response;
+        if (data.hits.length === 0) {
+          toast.error('Image not found');
+          return;
+        }
+        setImageList([...data.hits]);
+        setPage(2);
+        setTotalHits(data.totalHits);
+      })
+      .finally(() => setLoader(false));
+  }, [search]);
+
+  const loadMore = () => {
+    createRequest(search, page)
+      .then(response => {
+        const { hits } = response.data;
+        setImageList(prev => [...prev, ...hits]);
+        setPage(page + 1);
       })
       .catch(error => {
-        this.setState({ status: STATUS.error, error });
+        toast.error('Ooops...something went wrong.');
       });
   };
 
-  //рендер
-  render() {
-    const { imageList, page, totalHits, status, error } = this.state;
-
-    if (status === STATUS.loading) {
-      return (
-        <div className={css.loaderdiv}>
-          <Loader className={css.loader} />
-        </div>
-      );
-    }
-    if (status === STATUS.error) {
-      return <p>{error}</p>;
-    }
-    if (!imageList.length) {
-      return <p className={css.p}>{`Please, enter the search request`}</p>;
-    }
-    if (status === STATUS.success) {
-      return (
-        <>
-          <ul className={css.ul}>
-            {imageList.map(({ id, webformatURL, largeImageURL }) => {
-              return (
-                <ImageGalleryItem
-                  key={id}
-                  smallImg={webformatURL}
-                  largeImg={largeImageURL}
-                  handlerOpenModal={this.props.handlerOpenModal}
-                />
-              );
-            })}
-          </ul>
-          {totalHits >= 12 * page && <Button onClick={this.loadMore} />}
-        </>
-      );
-    }
+  if (!imageList.length) {
+    return (
+      <p
+        style={{
+          fontSize: '24px',
+          margin: '150px auto',
+        }}
+      >
+        {'Search an image'}
+      </p>
+    );
   }
-}
 
-export { ImageGallery };
+  return (
+    <>
+      <ul className={css.ul}>
+        {loader && <Loader />}
+        {imageList.map(({ id, webformatURL, largeImageURL }) => {
+          return (
+            <ImageGalleryItem
+              key={id}
+              smallImg={webformatURL}
+              largeImg={largeImageURL}
+              handlerOpenModal={handlerOpenModal}
+            />
+          );
+        })}
+      </ul>
+    </>
+  );
+};
+
+ImageGallery.propTypes = {
+  handlerOpenModal: PropTypes.func.isRequired,
+  search: PropTypes.string.isRequired,
+};

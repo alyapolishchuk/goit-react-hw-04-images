@@ -6,7 +6,7 @@ import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
-import { createRequest } from 'API/pixabay';
+import { createRequest } from '../API/pixabay';
 
 const STATUS = {
   idle: 'idle',
@@ -61,16 +61,24 @@ const App = () => {
     setQuery(search);
     setPage(1);
   };
-
   return (
-     <div>
-        <Searchbar onSubmit={this.handlerForm} />
-
-        <ImageGallery query={query} handlerOpenModal={this.handlerOpenModal} />
-
-        {image && <Modal image={image} onClose={this.handlerCloseModal} />}
-        <ToastContainer />
-      </div>
+    <div>
+      <Searchbar onSubmit={handlerForm} />
+      {status === STATUS.loading && <Loader />}
+      {status === STATUS.error && <p>{error}</p>}
+      {status === STATUS.idle && <p>{`Please, enter the search request`}</p>}
+      {status === STATUS.success && (
+        <ImageGallery
+          imageList={imageList}
+          handlerOpenModal={handlerOpenModal}
+        />
+      )}
+      {image && <Modal image={image} onClose={handlerCloseModal} />}
+      {status === STATUS.success && totalHits > 12 * page && (
+        <Button onClick={loadMore} />
+      )}
+      <ToastContainer />
+    </div>
   );
 };
 
