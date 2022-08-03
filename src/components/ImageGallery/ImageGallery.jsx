@@ -60,7 +60,7 @@ export const ImageGallery = ({ search, handlerOpenModal }) => {
   return (
     <>
       <ul className={css.ul}>
-        {loader && <Loader />}
+        {loader && <Loader className={css.loader} />}
         {imageList.map(({ id, webformatURL, largeImageURL }) => {
           return (
             <ImageGalleryItem
@@ -72,6 +72,7 @@ export const ImageGallery = ({ search, handlerOpenModal }) => {
           );
         })}
       </ul>
+      {totalHits >= 12 * page && <Button onClick={loadMore} />}
     </>
   );
 };

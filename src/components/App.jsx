@@ -74,9 +74,6 @@ const App = () => {
         />
       )}
       {image && <Modal image={image} onClose={handlerCloseModal} />}
-      {status === STATUS.success && totalHits > 12 * page && (
-        <Button onClick={loadMore} />
-      )}
       <ToastContainer />
     </div>
   );
